@@ -1,2 +1,2 @@
-print "This is a test!";
 var language = "lox";
+print "This is a test!";
