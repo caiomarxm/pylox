@@ -10,8 +10,9 @@ class Lexer:
     line = 1
 
 
-    def __init__(self, source:str) -> None:
+    def __init__(self, source:str, error_function:callable) -> None:
         self.source:str = source
+        self.error = error_function
 
 
     def scan_tokens(self) -> list[Token]:
@@ -38,9 +39,10 @@ class Lexer:
             case '+': self.add_token(tt.PLUS)
             case ';': self.add_token(tt.SEMICOLON)
             case '*': self.add_token(tt.STAR)
+            case _: self.error(self.line, f"Unexpected character {c}.")
 
 
-    def is_at_end(self):
+    def is_at_end(self) -> bool:
         return self.current >= len(self.source)
 
 

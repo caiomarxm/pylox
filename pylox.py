@@ -51,7 +51,7 @@ class PyLox:
 
 
     def run(self, source:str) -> None:
-        lexer = Lexer(source)
+        lexer = Lexer(source, self.error)
         tokens = lexer.scan_tokens()
 
         for token in tokens:
@@ -80,6 +80,7 @@ class PyLox:
 
     def report(self, line:int, where:str, message:str):
         print(f"[line '{line}'] Error{where}: {message}")
+        self._had_error = True
 
 
 
