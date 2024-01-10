@@ -5,14 +5,15 @@ from .token_type import TokenType as tt
 class Lexer:
     source:str
     tokens:list[Token]
-    start = 0
-    current = 0
+    start = -1
+    current = -1
     line = 1
 
 
     def __init__(self, source:str, error_function:callable) -> None:
         self.source:str = source
         self.error = error_function
+        self.tokens = []
 
 
     def scan_tokens(self) -> list[Token]:
@@ -39,11 +40,14 @@ class Lexer:
             case '+': self.add_token(tt.PLUS)
             case ';': self.add_token(tt.SEMICOLON)
             case '*': self.add_token(tt.STAR)
-            case _: self.error(self.line, f"Unexpected character {c}.")
+            case _: self.error(self.line, f"Unexpected character ' {c} '.")
+        
+        # Temporary code bellow
+        self.current += 1
 
 
     def is_at_end(self) -> bool:
-        return self.current >= len(self.source)
+        return self.current >= len(self.source)-1 # -1 corrects index problems
 
 
     def advance(self) -> str:
@@ -51,5 +55,5 @@ class Lexer:
 
 
     def add_token(self, type:tt, literal=None) -> None:
-        text = self.source[self.start, self.current]
+        text = self.source[self.start : self.current]
         self.tokens.append(Token(type, text, literal, self.line))

@@ -27,8 +27,8 @@ class PyLox:
         file_path = self.get_absolute_file_path(file_path)
 
         with open(file_path) as file:
-            source = file.buffer.read()
-            print(source)
+            source = file.read()
+            # print(source) # for debugging
             self.run(source)
 
             if self._had_error:
