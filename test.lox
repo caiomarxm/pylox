@@ -1,5 +1,5 @@
 // this is a comment
 var language = "lox";
 print "This is a test!";
-1234
-12.34
+1234;
+12.34;

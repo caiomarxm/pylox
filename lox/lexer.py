@@ -89,6 +89,13 @@ class Lexer:
             # Reading string literals
             case '"':
                 self.read_string()
+            
+            # Ignoring whitespaces
+            case ' ' | '\r' | '\t':
+                pass
+            
+            case '\n':
+                self.line += 1
 
             case _:
                 # Reading numbers
