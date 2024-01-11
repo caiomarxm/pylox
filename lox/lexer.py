@@ -71,9 +71,33 @@ class Lexer:
             case '"':
                 self.read_string()
 
-            case _: 
-                
-                self.error(self.line, f"Unexpected character ' {c} '.")
+            case _:
+                # Reading numbers
+                if self.is_digit(c):
+                    self.read_number()
+
+                # Reserved keywords
+
+                # Reading identifiers
+
+                else:
+                    self.error(self.line, f"Unexpected character ' {c} '.")
+
+    
+    def read_number(self):
+        while self.is_digit(self.peek()):
+            self.advance()
+        
+        # Looking for fractional part
+        if self.peek() == '.' and self.is_digit(self.peek_next()):
+            self.advance()
+            while self.is_digit(self.peek()):
+                self.advance()
+
+        self.add_token(
+            tt.NUMBER,
+            float(self.source[self.start+1 : self.current+1])
+            )
 
 
     def read_string(self):
@@ -110,6 +134,16 @@ class Lexer:
         if self.is_at_end():
             return '\0'
         return self.source[self.current+1]
+    
+
+    def peek_next(self) -> str:
+        if self.current+2 >= len(self.source):
+            return '\0'
+        return self.source[self.current+2]
+
+
+    def is_digit(self, char:str) -> bool:
+        return char >= '0' and char <= '9'
 
 
     def is_at_end(self) -> bool:
