@@ -85,5 +85,6 @@ class PyLox:
 
 
 if __name__ == "__main__":
-    code = PyLox().start()
+    pylox = PyLox()
+    code = pylox.start()
     print(f"Process ended with code {code}")

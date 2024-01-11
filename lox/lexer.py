@@ -23,13 +23,14 @@ class Lexer:
 
         self.tokens.append(Token(tt.EOF, "", None, self.line))
         
-        return []
+        return self.tokens
 
 
     def scan_token(self):
         c = self.advance()
 
         match c:
+            # Single-character tokens
             case '(': self.add_token(tt.LEFT_PAREN)
             case ')': self.add_token(tt.RIGHT_PAREN)
             case '{': self.add_token(tt.LEFT_BRACE)
@@ -40,10 +41,75 @@ class Lexer:
             case '+': self.add_token(tt.PLUS)
             case ';': self.add_token(tt.SEMICOLON)
             case '*': self.add_token(tt.STAR)
-            case _: self.error(self.line, f"Unexpected character ' {c} '.")
+            # Slash must handle comments
+            case '/':
+                if self.match_next('/'):
+                    while self.source[self.current] != '\n' and not self.is_at_end():
+                        self.advance()
+                else:
+                    self.add_token(tt.SLASH)
+
+            # One or two character tokens
+            case '!':
+                self.add_token(
+                    tt.BANG_EQUAL if self.match_next('=') else tt.BANG,
+                )
+            case '=':
+                self.add_token(
+                    tt.EQUAL_EQUAL if self.match_next('=') else tt.EQUAL,
+                )
+            case '<':
+                self.add_token(
+                    tt.LESS_EQUAL if self.match_next('=') else tt.LESS,
+                )
+            case '>':
+                self.add_token(
+                    tt.GREATER_EQUAL if self.match_next('=') else tt.GREATER,
+                )
+            
+            # Reading string literals
+            case '"':
+                self.read_string()
+
+            case _: 
+                
+                self.error(self.line, f"Unexpected character ' {c} '.")
+
+
+    def read_string(self):
+        while self.peek() != '"' and not self.is_at_end():
+            if self.peek() == '\n':
+                self.line += 1
+            self.advance()
         
-        # Temporary code bellow
+        if self.is_at_end():
+            self.error(self.line, f"Unterminated string.")
+            return
+        
+        self.advance()
+
+        value = self.source[self.start+2 : self.current]
+        self.add_token(tt.STRING, value)
+        
+    
+    def match_next(self, expected:str) -> bool:
+        if self.is_at_end():
+            return False
+        
+        if self.source[self.current+1] != expected:
+            return False
+        
         self.current += 1
+
+        return True
+
+
+    def peek(self) -> str:
+        """Look ahead without consuming characters
+        """
+        if self.is_at_end():
+            return '\0'
+        return self.source[self.current+1]
 
 
     def is_at_end(self) -> bool:
@@ -51,9 +117,10 @@ class Lexer:
 
 
     def advance(self) -> str:
-        return self.source[self.current+1]
+        self.current += 1
+        return self.source[self.current]
 
 
     def add_token(self, type:tt, literal=None) -> None:
-        text = self.source[self.start : self.current]
+        text = self.source[self.start+1 : self.current+1]
         self.tokens.append(Token(type, text, literal, self.line))
