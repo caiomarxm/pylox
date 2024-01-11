@@ -9,6 +9,25 @@ class Lexer:
     current = -1
     line = 1
 
+    keywords:dict[str:int] = {
+        "and": tt.AND,
+        "class":  tt.CLASS,
+        "else":   tt.ELSE,
+        "false":  tt.FALSE,
+        "for":    tt.FOR,
+        "fun":    tt.FUN,
+        "if":     tt.IF,
+        "nil":    tt.NIL,
+        "or":     tt.OR,
+        "print":  tt.PRINT,
+        "return": tt.RETURN,
+        "super":  tt.SUPER,
+        "this":   tt.THIS,
+        "true":   tt.TRUE,
+        "var":    tt.VAR,
+        "while":  tt.WHILE
+    }
+
 
     def __init__(self, source:str, error_function:callable) -> None:
         self.source:str = source
@@ -88,7 +107,12 @@ class Lexer:
         while self.is_alpha_numeric(self.peek()):
             self.advance()
         
-        self.add_token(tt.IDENTIFIER)
+        lexeme = self.source[self.start+1 : self.current+1]
+        token_type = self.keywords.get(lexeme) \
+                if self.keywords.get(lexeme) \
+                else tt.IDENTIFIER
+        
+        self.add_token(token_type)
 
     
     def read_number(self):
