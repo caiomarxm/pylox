@@ -76,12 +76,19 @@ class Lexer:
                 if self.is_digit(c):
                     self.read_number()
 
-                # Reserved keywords
-
-                # Reading identifiers
+                # Identifiers
+                elif self.is_alpha(c):
+                    self.read_identifier()
 
                 else:
                     self.error(self.line, f"Unexpected character ' {c} '.")
+
+
+    def read_identifier(self):
+        while self.is_alpha_numeric(self.peek()):
+            self.advance()
+        
+        self.add_token(tt.IDENTIFIER)
 
     
     def read_number(self):
@@ -140,6 +147,18 @@ class Lexer:
         if self.current+2 >= len(self.source):
             return '\0'
         return self.source[self.current+2]
+
+    
+    def is_alpha(self, char:str) -> bool:
+        return (
+            char >= 'a' and char <= 'z' or
+            char >= 'A' and char <= 'Z' or
+            char == '_'
+        )
+    
+
+    def is_alpha_numeric(self, char:str) -> bool:
+        return self.is_alpha(char) or self.is_digit(char)
 
 
     def is_digit(self, char:str) -> bool:
